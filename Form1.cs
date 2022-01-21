@@ -25,20 +25,47 @@ namespace EmojiSaver
             public static extern bool AllocConsole();
         }
 
-        private IDataObject previousClipboard;
-        private void setPreviousClipboard(IDataObject currentClipboardObj)
+
+        Dictionary<string, string> specialChDic = new Dictionary<string, string>();
+
+        private void addChList(string newKey, string newValue)
         {
-            previousClipboard = currentClipboardObj;
-        }
-        private IDataObject getPreviousClipboard()
-        {
-            return previousClipboard;
+            specialChDic.Add(newKey, newValue);
         }
 
-        private void restoreCurrentClipboard(ref IDataObject currentClipboardObj)
+        int key = 0;
+        IDataObject ClipboardObject;
+        SortedList<int, Dictionary<string, object>> previousClipboard = new SortedList<int, Dictionary<string, object>>();
+
+        private void savePreviousClipboard()
         {
-            currentClipboardObj = previousClipboard;
+            previousClipboard.Clear();
+            ClipboardObject = Clipboard.GetDataObject();
+            var formats = ClipboardObject.GetFormats(false);
+            Dictionary<string, object> clipboardFormats = new Dictionary<string, object>();
+            foreach(var format in formats)
+            {
+                if(format.Contains("Text")||format.Contains("Hyperlink")||format.Contains("Bitmap"))
+                {
+                    clipboardFormats.Add(format, ClipboardObject.GetData(format));
+                }
+            }
+            previousClipboard.Add(key, clipboardFormats);
         }
+
+        private void restoreClipboard()
+        {
+            DataObject data = new DataObject();
+            foreach(KeyValuePair<string, object> kvp in previousClipboard[key])
+            {
+                if(kvp.Value != null)
+                {
+                    data.SetData(kvp.Key, kvp.Value);
+                }
+            }
+            Clipboard.SetDataObject(data, true);
+        }
+
 
         private Hotkeys.GlobalHotkey ghk;
 
@@ -70,12 +97,13 @@ namespace EmojiSaver
             int HotkeyIdx = (m.LParam.ToInt32() & 0x0F0000) >> 16;
             Console.WriteLine("CTRL + " + HotkeyIdx + " is pressed!");
 
-            /*
-             * Maybe should restore previous clipboard contents??
-             */
+            string charDictKey;
+            charDictKey = "CTRL|" + HotkeyIdx;
+            Console.WriteLine(charDictKey);
+            
 
             /* save current clipboard contents to previousClipboard variable */
-            setPreviousClipboard(Clipboard.GetDataObject());
+            savePreviousClipboard();
 
             /* clear current clipboard */
             Clipboard.Clear();
@@ -87,18 +115,38 @@ namespace EmojiSaver
 
             if (Clipboard.ContainsText())
             {
-                var selectedText = Clipboard.GetText();
+                string selectedText = Clipboard.GetText();
                 Console.WriteLine(selectedText);
-                Console.WriteLine(Clipboard.GetDataObject().GetData(Text));
+                Console.WriteLine("==================");
+                addChList(charDictKey, selectedText);
+
+                /*만약 이미 키를 가지고있을경우 
+                 * 예외처리 필요
+                 * 예를들어 ctrl+1에 뭘등록해둔상태에서
+                 * 다시 ctrl+1로 재등록하려그러면 오류뿜뿜
+                */
 
             }
             else
             {
                 Console.WriteLine("Nothing selected");
+
+                /* character corresponding to hotkey registered */
+                string printChar = "";
+                if(specialChDic.TryGetValue(charDictKey,out printChar))
+                {
+
+                    /* if exists, print the corresponding special character */
+                    SendKeys.SendWait(printChar);
+                }
+                else
+                {
+                    //do nothing
+                }
             }
 
             /* restore current clipboard with previous content */
-            Clipboard.SetDataObject(getPreviousClipboard());
+            restoreClipboard();
             
         }
         protected override void WndProc(ref Message m)
