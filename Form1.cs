@@ -118,13 +118,20 @@ namespace EmojiSaver
                 string selectedText = Clipboard.GetText();
                 Console.WriteLine(selectedText);
                 Console.WriteLine("==================");
-                addChList(charDictKey, selectedText);
+                
 
-                /*만약 이미 키를 가지고있을경우 
-                 * 예외처리 필요
-                 * 예를들어 ctrl+1에 뭘등록해둔상태에서
-                 * 다시 ctrl+1로 재등록하려그러면 오류뿜뿜
-                */
+                /* if key already exists */
+                if (specialChDic.ContainsKey(charDictKey))
+                {
+                    /* replace current value with new value */
+                    specialChDic[charDictKey] = selectedText;
+                    dataGridView1[2, HotkeyIdx].Value = selectedText;
+                }
+                else
+                {
+                    addChList(charDictKey, selectedText);
+                    dataGridView1[2, HotkeyIdx].Value = selectedText;
+                }
 
             }
             else
@@ -135,9 +142,9 @@ namespace EmojiSaver
                 string printChar = "";
                 if(specialChDic.TryGetValue(charDictKey,out printChar))
                 {
-
                     /* if exists, print the corresponding special character */
                     SendKeys.SendWait(printChar);
+                    //maybe not simple sendwait, but rich text? like colors, size, etc?
                 }
                 else
                 {
@@ -160,7 +167,9 @@ namespace EmojiSaver
 
         private void Form1_Load(object sender, EventArgs e)
         {
-           
+            setupGridView();
+            populateGridView();
+
             WriteLine("Trying to register SHIFT+ALT+O");
           
             if (ghk.Register()) WriteLine("Hotkey registered.");
@@ -242,6 +251,32 @@ namespace EmojiSaver
             this.WindowState = FormWindowState.Normal;
             notifyIcon1.Visible = false;
         }
+        private void setupGridView()
+        {
+            this.Controls.Add(dataGridView1);
+            dataGridView1.ColumnCount = 3;
+            dataGridView1.Columns[0].Name = "#";
+            dataGridView1.Columns[1].Name = "HotKey";
+            dataGridView1.Columns[2].Name = "Character";
+            DataGridViewColumn column0 = dataGridView1.Columns[0];
+            DataGridViewColumn column1 = dataGridView1.Columns[1];
+            DataGridViewColumn column2 = dataGridView1.Columns[2];
+            column0.Width = 25;
+            column1.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            column2.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            column0.ReadOnly = true;
+            column1.ReadOnly = true;
+            column2.ReadOnly = true;
 
+        }
+
+        private void populateGridView()
+        {
+            for(int i = 0; i < 10; i++)
+            {
+                string hk = "CTRL" + " + " + i.ToString();
+                dataGridView1.Rows.Add(i.ToString(), hk, "");
+            }
+        }
     }
 }

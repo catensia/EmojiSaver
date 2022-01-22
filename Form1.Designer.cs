@@ -36,7 +36,9 @@ namespace EmojiSaver
             this.프로그램종료ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.창활성화ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.textBox1 = new System.Windows.Forms.TextBox();
+            this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.contextMenuStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
             // notifyIcon1
@@ -72,14 +74,25 @@ namespace EmojiSaver
             // 
             this.textBox1.Location = new System.Drawing.Point(44, 42);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(221, 21);
+            this.textBox1.Size = new System.Drawing.Size(437, 21);
             this.textBox1.TabIndex = 1;
+            // 
+            // dataGridView1
+            // 
+            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.Location = new System.Drawing.Point(44, 81);
+            this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.RowHeadersVisible = false;
+            this.dataGridView1.RowTemplate.Height = 23;
+            this.dataGridView1.Size = new System.Drawing.Size(437, 297);
+            this.dataGridView1.TabIndex = 2;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(693, 368);
+            this.ClientSize = new System.Drawing.Size(693, 448);
+            this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.textBox1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
@@ -89,6 +102,7 @@ namespace EmojiSaver
             this.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseDoubleClick);
             this.Resize += new System.EventHandler(this.Form1_Resize);
             this.contextMenuStrip1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -101,6 +115,7 @@ namespace EmojiSaver
         private System.Windows.Forms.ToolStripMenuItem 프로그램종료ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 창활성화ToolStripMenuItem;
         private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.DataGridView dataGridView1;
     }
 }
 
