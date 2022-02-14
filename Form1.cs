@@ -98,7 +98,7 @@ namespace EmojiSaver
             Console.WriteLine("CTRL + " + HotkeyIdx + " is pressed!");
 
             string charDictKey;
-            charDictKey = "CTRL|" + HotkeyIdx;
+            charDictKey = "CTRL+" + HotkeyIdx;
             Console.WriteLine(charDictKey);
             
 
@@ -125,12 +125,12 @@ namespace EmojiSaver
                 {
                     /* replace current value with new value */
                     specialChDic[charDictKey] = selectedText;
-                    dataGridView1[2, HotkeyIdx].Value = selectedText;
+                    dataGridView1[3, HotkeyIdx].Value = selectedText;
                 }
                 else
                 {
                     addChList(charDictKey, selectedText);
-                    dataGridView1[2, HotkeyIdx].Value = selectedText;
+                    dataGridView1[3, HotkeyIdx].Value = selectedText;
                 }
 
             }
@@ -168,7 +168,7 @@ namespace EmojiSaver
         private void Form1_Load(object sender, EventArgs e)
         {
             setupGridView();
-            populateGridView();
+            
 
             WriteLine("Trying to register SHIFT+ALT+O");
           
@@ -253,30 +253,102 @@ namespace EmojiSaver
         }
         private void setupGridView()
         {
-            this.Controls.Add(dataGridView1);
-            dataGridView1.ColumnCount = 3;
-            dataGridView1.Columns[0].Name = "#";
-            dataGridView1.Columns[1].Name = "HotKey";
-            dataGridView1.Columns[2].Name = "Character";
+
+            DataTable dt = new DataTable();
+            dt.Columns.Add("#");
+            dt.Columns.Add(" ", typeof(bool));
+            dt.Columns.Add("HotKey");
+            dt.Columns.Add("Character");
+
+            for (int i = 0; i < 10; i++)
+            {
+                string hk = "CTRL" + "+" + i.ToString();
+                dt.Rows.Add( i.ToString(), false, hk, "");
+            }
+
+            dataGridView1.DataSource = dt;
+
+
             DataGridViewColumn column0 = dataGridView1.Columns[0];
             DataGridViewColumn column1 = dataGridView1.Columns[1];
             DataGridViewColumn column2 = dataGridView1.Columns[2];
+            DataGridViewColumn column3 = dataGridView1.Columns[3];
+            int clientWidth = dataGridView1.ClientRectangle.Width;
             column0.Width = 25;
-            column1.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            column2.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            column0.ReadOnly = true;
-            column1.ReadOnly = true;
-            column2.ReadOnly = true;
+            column1.Width = 25;
+            column2.Width = 200;
+            this.dataGridView1.Columns[3].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+
+            dataGridView1.Columns[0].ReadOnly = true;
+            dataGridView1.Columns[2].ReadOnly = true;
+            dataGridView1.Columns[3].ReadOnly = true;
 
         }
 
-        private void populateGridView()
+
+        private void updateDGV(int mode, int N, int []idx)
         {
-            for(int i = 0; i < 10; i++)
+            //when mode is 0 => update all
+            //when mode is 1 => update based on index
+            if(mode == 0)
             {
-                string hk = "CTRL" + " + " + i.ToString();
-                dataGridView1.Rows.Add(i.ToString(), hk, "");
+                int rowidx = 0;
+                foreach(DataGridViewRow row in dataGridView1.Rows)
+                {
+                    //empty the UI part first
+                    dataGridView1[3, rowidx].Value = "";
+                    foreach (KeyValuePair<string, string> entry in specialChDic)
+                    {
+                        if(entry.Key == row.Cells[2].Value.ToString())
+                        {
+                            //fill in the UI based on dictionary value
+                            dataGridView1[3, rowidx].Value = entry.Value.ToString();
+                        }
+                    }
+                    rowidx++;
+                }
             }
+            else
+            {
+                //change values of certain indices
+                for(int i = 0; i < N; i++)
+                {
+                    int cur = idx[i];
+
+                }
+            }
+
+        }
+
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Console.WriteLine("Button 1 pressed!");
+            int i = 0;
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                if (Convert.ToBoolean(row.Cells[1].Value))
+                {
+                    //remove from dictionary 
+                    string checkedHotkey = row.Cells[2].Value.ToString();
+
+                    if (specialChDic.ContainsKey(checkedHotkey))
+                    {
+                        specialChDic.Remove(checkedHotkey);
+                    }
+                    specialChDic.Remove(row.Cells[2].Value.ToString());
+
+                    row.Cells[1].Value = false;
+                }
+                else Console.WriteLine("Line " + i + " is unchecked");
+                i++;
+            }
+            updateDGV(0, 0, null);
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
